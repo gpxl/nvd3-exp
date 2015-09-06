@@ -1,0 +1,71 @@
+---
+layout: default
+---
+<style>
+	text {
+		font: 12px sans-serif;
+	}
+	svg {
+		display: block;
+	}
+	html, body, #chart1, svg {
+		margin: 0px;
+		padding: 0px;
+		height: 100%;
+		width: 100%;
+	}
+</style>
+<a href="#" id="mo3">3mo</a>, <a href="#" id="mo6">6mo</a> , <a href="#" id="yr1">1Yr</a>
+<div id="chart1">
+	<svg></svg>
+</div>
+<script src="twtr.json"></script>
+<script>
+	nv.addGraph(function() {
+		var chart = nv.models.ohlcBarChart()
+		.x(function(d) { return d3.time.format("%e-%b-%y").parse(d['date']) })
+		.y(function(d) { return d['close'] })
+		.duration(250)
+		.margin({left: 75, bottom: 50});
+
+		chart.xAxis
+		.axisLabel("Dates")
+		.tickFormat(function(d) {
+			return d3.time.format('%x')(new Date(d));
+		});
+		chart.yAxis
+		.axisLabel('Stock Price')
+		.tickFormat(function(d,i){ return '$' + d3.format(',.1f')(d); });
+		d3.select("#chart1 svg")
+		.datum(data)
+		.transition().duration(500)
+		.call(chart);
+		nv.utils.windowResize(chart.update);
+
+		d3.select('#mo3').on('click', mo3);
+		d3.select('#mo6').on('click', mo6);
+		d3.select('#yr1').on('click', yr1);
+
+		function updateChart(data) {
+			d3.select("#chart1 svg")
+			.datum(data)
+			.transition().duration(500)
+			.call(chart.update);			
+		}
+		
+		function mo3() {
+			updateChart([{ values: data[0]['values'].slice(0,60) }]);
+		}
+
+		function mo6() {
+			updateChart([{ values: data[0]['values'].slice(0,120) }]);
+		}
+
+		function yr1() {
+			updateChart(data);
+		}
+
+		return chart;
+	});
+	
+</script>
